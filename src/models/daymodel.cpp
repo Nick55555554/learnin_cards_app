@@ -1,4 +1,4 @@
-#include "DayModel.h"
+#include "models/daymodel.h"
 
 DayModel::DayModel(DatabaseManager* dbManager, QObject *parent)
     : QAbstractListModel(parent), m_dbManager(dbManager)

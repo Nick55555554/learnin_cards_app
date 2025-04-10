@@ -1,4 +1,4 @@
-#include "myday.h"
+#include "entities/myday.h"
 
 MyDay::MyDay(QObject *parent) : QObject(parent), m_id(0) {}
 

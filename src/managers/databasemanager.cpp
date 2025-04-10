@@ -1,7 +1,7 @@
-#include "databasemanager.h"
-#include "termin.h"
-#include "Oneday.h"
-#include "myday.h"
+#include "managers/databasemanager.h"
+#include "entities/termin.h"
+#include "entities/oneday.h"
+#include "entities/myday.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>

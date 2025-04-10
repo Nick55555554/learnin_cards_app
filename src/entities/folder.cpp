@@ -1,5 +1,5 @@
-#include "folder.h"
-#include "OneDay.h"
+#include "entities/folder.h"
+#include "entities/oneDay.h"
 
 Folder::Folder(QObject *parent) : QObject(parent) {}
 

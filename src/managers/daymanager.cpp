@@ -1,4 +1,7 @@
-#include "DayManager.h"
+#include "managers/daymanager.h"
+#include "entities/oneday.h"
+
+
 #include <QDebug>
 
 void DayManager::loadDay(int id) {

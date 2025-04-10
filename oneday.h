@@ -1,48 +1,26 @@
 #ifndef ONEDAY_H
 #define ONEDAY_H
 
-#include "folder.h" // Предполагается, что OneDay наследует от Folder
-#include <QObject>
+#include <QString>
+#include <QSqlQuery>
+#include <QSqlError>
 #include <QSqlDatabase>
+#include <QVariant>
 
-class OneDay : public Folder {
-    Q_OBJECT
-
+class OneDay
+{
 public:
-    explicit OneDay(QObject *parent = nullptr);
-    OneDay(int id, QSqlDatabase db, QObject *parent = nullptr);
-
+    OneDay(int id, QSqlDatabase db);
     bool loadData();
 
-    // Геттеры и сеттеры
-    int id() const { return m_id; }
-    void setId(int id);
-
-    QString name() const { return m_dayName; }
-    void setName(const QString &dayName);
-
-    int userId() const { return m_userId; }
-    void setUserId(int userId);
-
-    int folderId() const { return m_folderId; }
-    void setFolderId(int folderId);
-
-    void setTerminCount(int count);
-
-signals:
-    void idChanged();
-    void dayNameChanged();
-    void userIdChanged();
-    void terminCountChanged();
-    void folderIdChanged();
+    QString getDayName() const { return dayName; }
+    int getUserId() const { return userId; }
 
 private:
-    int m_id; // ID дня
-    QString m_dayName; // Имя дня
-    int m_userId; // ID пользователя
-    int m_terminCount; // Количество терминов
-    int m_folderId = -1; // ID папки, инициализация по умолчанию
-    QSqlDatabase m_database; // База данных
+    int id; // ID записи
+    QString dayName; // Название дня
+    int userId; // ID пользователя
+    QSqlDatabase database; // База данных
 };
 
 #endif // ONEDAY_H

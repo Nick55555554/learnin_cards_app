@@ -1,5 +1,5 @@
-#include "termin.h"
-#include "databasemanager.h"
+#include "entities/termin.h"
+#include "managers/databasemanager.h"
 
 Termin::Termin(DatabaseManager* dbManager, QObject *parent)
     : OneDay(parent), m_dbManager(dbManager)

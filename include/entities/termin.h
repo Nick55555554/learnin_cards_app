@@ -1,7 +1,7 @@
 #ifndef TERMIN_H
 #define TERMIN_H
 
-#include "OneDay.h"
+#include "entities/oneDay.h"
 
 class DatabaseManager;
 

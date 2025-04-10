@@ -6,10 +6,10 @@ import MyModule 1.0
 import "./components"
 import "./pages" as Pages
 
-Window  {
+ApplicationWindow   {
     visible: true
     width: 1000
-    height: 650
+    height: 620
     title: "Memorizzali"
     color: "#f1f1f1"
     Material.theme: Material.Light

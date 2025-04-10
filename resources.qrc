@@ -2,6 +2,6 @@
     <qresource prefix="/">
         <file>images/more.svg</file>
         <file>images/trash.svg</file>
-        <file>images/arrow.png</file>
+        <file>images/favicon.ico</file>
     </qresource>
 </RCC>
