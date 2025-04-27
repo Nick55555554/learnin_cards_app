@@ -1,7 +1,7 @@
 #ifndef ONEDAY_H
 #define ONEDAY_H
 
-#include "entities/folder.h" // Предполагается, что OneDay наследует от Folder
+#include "entities/folder.h"
 #include <QObject>
 #include <QSqlDatabase>
 

@@ -17,7 +17,7 @@ Item {
         Column {
             anchors.centerIn: parent
             spacing: 30
-            width: Math.min(parent.width * 0.8, 400)  // Адаптивная ширинаa
+            width: Math.min(parent.width * 0.8, 400)
 
             Text {
                 text: "Результаты"

@@ -2,7 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Dialogs 6.3
 import QtQuick.Layouts 1.15
-
+import MyModule 1.0
 Item {
     id: terminItem
     width: parent.width
@@ -12,6 +12,8 @@ Item {
     property string image: ""
     property string tempId: ""
      signal deleteClicked(string tempId)
+
+      ImageSaver { id: imageSaver }
 
     Rectangle {
         width: parent.width
@@ -91,7 +93,10 @@ Item {
                         onDropped: function(drop) {
                             if (drop.hasUrls && drop.urls.length > 0) {
                                 terminItem.image = drop.urls[0].toString()
+                                const newPath = imageSaver.saveImage(drop.urls[0])
+                                if (newPath) terminItem.image = newPath
                             }
+
                         }
                     }
 
@@ -136,6 +141,10 @@ Item {
         nameFilters: ["Image files (*.png *.jpg *.jpeg)"]
         onAccepted: {
             terminItem.image = selectedFile.toString()
+            const savedPath = imageSaver.saveImage(selectedFile)
+                   if (savedPath) {
+                       terminItem.image = savedPath // Теперь используем сохранённую копию
+                   }
         }
     }
 }

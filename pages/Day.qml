@@ -16,6 +16,7 @@ Item {
         var foldersData = databaseManager.getFoldersById(globalUser.id);
         folderModel.clear();
         foldersData.forEach(function(folder) {
+            console.log("loaded folder:", folder.name)
             folderModel.append({
                 id: folder.id,
                 name: folder.name,

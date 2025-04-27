@@ -1,0 +1,23 @@
+<RCC>
+  <qresource prefix="/QmlApp/">
+    <file alias="main.qml">C:/Users/Nick/Documents/ichWill/main.qml</file>
+    <file alias="components/OneDay.qml">C:/Users/Nick/Documents/ichWill/components/OneDay.qml</file>
+    <file alias="components/ListOfTermins.qml">C:/Users/Nick/Documents/ichWill/components/ListOfTermins.qml</file>
+    <file alias="components/TerminCard.qml">C:/Users/Nick/Documents/ichWill/components/TerminCard.qml</file>
+    <file alias="components/ResultsScreen.qml">C:/Users/Nick/Documents/ichWill/components/ResultsScreen.qml</file>
+    <file alias="components/NewTermin.qml">C:/Users/Nick/Documents/ichWill/components/NewTermin.qml</file>
+    <file alias="pages/Home.qml">C:/Users/Nick/Documents/ichWill/pages/Home.qml</file>
+    <file alias="pages/NewDay.qml">C:/Users/Nick/Documents/ichWill/pages/NewDay.qml</file>
+    <file alias="pages/Auth.qml">C:/Users/Nick/Documents/ichWill/pages/Auth.qml</file>
+    <file alias="pages/Register.qml">C:/Users/Nick/Documents/ichWill/pages/Register.qml</file>
+    <file alias="pages/AllTermins.qml">C:/Users/Nick/Documents/ichWill/pages/AllTermins.qml</file>
+    <file alias="components/ListOfAllTermins.qml">C:/Users/Nick/Documents/ichWill/components/ListOfAllTermins.qml</file>
+    <file alias="components/CustomButton.qml">C:/Users/Nick/Documents/ichWill/components/CustomButton.qml</file>
+    <file alias="components/OneFolder.qml">C:/Users/Nick/Documents/ichWill/components/OneFolder.qml</file>
+    <file alias="pages/Folder.qml">C:/Users/Nick/Documents/ichWill/pages/Folder.qml</file>
+    <file alias="pages/Day.qml">C:/Users/Nick/Documents/ichWill/pages/Day.qml</file>
+    <file alias="pages/EditDay.qml">C:/Users/Nick/Documents/ichWill/pages/EditDay.qml</file>
+    <file alias="resources.qrc">C:/Users/Nick/Documents/ichWill/resources.qrc</file>
+  </qresource>
+</RCC>
+

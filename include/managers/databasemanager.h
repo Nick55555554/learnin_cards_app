@@ -34,8 +34,6 @@ public:
     Q_INVOKABLE bool addFolder(const QVariantMap &Folder);
 
     Q_INVOKABLE bool registerUser(const QString &name, const QString &username, const QString &password);
-    Q_INVOKABLE QVariantMap authenticate(const QString &username, const QString &password);
-    ~DatabaseManager();
     Q_INVOKABLE bool updateFolderAndDay(int folderId, int dayId);
     Q_INVOKABLE bool updateTermin(const QVariantMap &termin);
     Q_INVOKABLE bool deleteTerminsByDayId(int dayId);
@@ -43,7 +41,11 @@ public:
     Q_INVOKABLE bool updateDayName(int dayId, const QString &dayName);
     Q_INVOKABLE bool deleteFolder(int folderId);
     Q_INVOKABLE bool deleteDay(int dayId);
-
+    QVariantMap getUserById(int userId);
+    Q_INVOKABLE QVariantMap authenticate(const QString &username, const QString &password);
+    bool tryAutoLogin(QVariantMap& userData);
+    Q_INVOKABLE void clearSession();
+    ~DatabaseManager();
 signals:
     void daysChanged();
     void foldersChanged();
@@ -58,6 +60,10 @@ private:
     void cleanupQueries();
     QSqlQuery createQuery();
     bool initializeDatabaseStructure(QSqlDatabase& db);
+    QString generateUserToken(int userId, const QString& username);
+    void saveSession(int userId, const QString& token);
+    QString generateSalt();
+    QString hashPassword(const QString& password, const QString& salt);
 };
 
 #endif

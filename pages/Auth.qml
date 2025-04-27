@@ -124,7 +124,6 @@ Item {
                             messageDialog.open();
                             return;
                         }
-
                         var userData = databaseManager.authenticate(loginField.text, passwordField.text);
                         if(userData.success) {
                             globalUser.id = userData.id;

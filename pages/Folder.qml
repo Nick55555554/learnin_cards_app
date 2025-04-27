@@ -29,7 +29,7 @@ Item {
 
     Connections {
         target: databaseManager
-        function onDaysChanged() {
+        onDaysChanged:{
             loadDays()
         }
     }
@@ -108,7 +108,6 @@ Item {
                            cursorShape: Qt.PointingHandCursor
                            onClicked: deleteMenu.open()
                            onEntered: {
-                               deleteButton.color = Qt.darker(dangerColor, 1.1)
                                deleteText.color = "white"
                            }
                            onExited: {
@@ -163,13 +162,14 @@ Item {
 
                                Button {
                                    text: "Удалить"
-                                   Material.foreground: dangerColor
                                    MouseArea {
                                        anchors.fill: parent
                                        onClicked: {
                                            databaseManager.deleteFolder(folderId)
-                                           stackView.replace(homePageComponent)
+                                           // folderModel.loadData()
+                                           // dayModel.loadAllDays()
                                            deleteMenu.close()
+                                           stackView.pop()
                                        }
                                        hoverEnabled: true
                                        cursorShape: Qt.PointingHandCursor
@@ -271,8 +271,6 @@ Item {
                 color: cardColor
                 radius: 12
 
-
-                // Здесь можно добавить содержимое дня
                 Label {
                     anchors.centerIn: parent
                     text: "Выберите день для просмотра"

@@ -12,7 +12,7 @@ class Folder : public QObject {
     Q_PROPERTY(int userId READ userId WRITE setUserId NOTIFY userIdChanged)
     Q_PROPERTY(int id READ id WRITE setId NOTIFY idChanged)
     Q_PROPERTY(QList<OneDay*> days READ days NOTIFY daysChanged)
-    Q_PROPERTY(QList<int> dayIds READ getDayIds NOTIFY dayIdsChanged) // Новый свойство для хранения ID дней
+    Q_PROPERTY(QList<int> dayIds READ getDayIds NOTIFY dayIdsChanged)
 
 public:
     explicit Folder(QObject *parent = nullptr);

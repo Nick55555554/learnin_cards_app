@@ -1,11 +1,16 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.17)
 project(QmlApp LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_PREFIX_PATH "C:/Qt/6.8.2/mingw_64")
+
+# Настройки для Qt
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 
 find_package(Qt6 REQUIRED COMPONENTS
     Core
@@ -19,6 +24,7 @@ find_package(Qt6 REQUIRED COMPONENTS
 
 qt_standard_project_setup()
 
+# Исходные файлы
 set(APP_SOURCES
     src/main.cpp
     src/managers/databasemanager.cpp
@@ -27,11 +33,12 @@ set(APP_SOURCES
     src/entities/oneday.cpp
     src/managers/daymanager.cpp
     src/entities/folder.cpp
-
     src/entities/user.cpp
     src/entities/myday.cpp
+    src/entities/imagesaver.cpp
 )
 
+# QML-файлы (убедитесь в корректности путей!)
 set(QML_FILES
     main.qml
     components/OneDay.qml
@@ -52,7 +59,7 @@ set(QML_FILES
     pages/EditDay.qml
 )
 
-qt_add_executable(QmlApp ${APP_SOURCES})
+qt_add_executable(QmlApp WIN32 ${APP_SOURCES})
 
 qt_add_qml_module(QmlApp
     URI "QmlApp"
@@ -68,6 +75,8 @@ qt_add_qml_module(QmlApp
         include/models/daymodel.h src/models/daymodel.cpp
         include/entities/oneday.h src/entities/oneday.cpp
         include/managers/daymanager.h src/managers/daymanager.cpp
+        include/entities/imagesaver.h src/entities/imagesaver.cpp
+        SOURCES
 )
 
 target_include_directories(QmlApp PRIVATE
@@ -93,19 +102,16 @@ if(WIN32)
         gdi32
         shell32
     )
-
-
 endif()
 # Установка
 install(TARGETS QmlApp DESTINATION bin)
 install(FILES "images/favicon.ico" DESTINATION share/icons)
 
-# Поддержка CPack
 include(CPack)
 
 set(CPACK_GENERATOR "NSIS")
-set(CPACK_PACKAGE_NAME "QmlApp")
+set(CPACK_PACKAGE_NAME "Memorazzi")
 set(CPACK_PACKAGE_VERSION "1.0.0")
 set(CPACK_PACKAGE_DESCRIPTION "Описание вашего приложения")
-set(CPACK_PACKAGE_VENDOR "Ваше имя или компания")
+set(CPACK_PACKAGE_VENDOR "Грачев Николай")
 set(CPACK_PACKAGE_EXECUTABLES "QmlApp" "My Application")

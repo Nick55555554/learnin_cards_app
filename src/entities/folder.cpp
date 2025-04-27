@@ -27,12 +27,18 @@ void Folder::setId(int id) {
 void Folder::addDay(OneDay *day) {
     if (day && !m_days.contains(day)) {
         m_days.append(day);
+        m_day_ids.append(day->id());
+        day->setFolderId(this->id()); // Устанавливаем связь
         emit daysChanged();
+        emit dayIdsChanged();
     }
 }
 
 void Folder::removeDay(OneDay *day) {
     if (m_days.removeOne(day)) {
+        m_day_ids.removeAll(day->id());
+        day->setFolderId(-1); // Сбрасываем связь
         emit daysChanged();
+        emit dayIdsChanged();
     }
 }

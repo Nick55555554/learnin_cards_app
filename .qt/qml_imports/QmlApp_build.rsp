@@ -1,0 +1,14 @@
+-rootPath
+C:/Users/Nick/Documents/ichWill
+-cmake-output
+-output-file
+C:/Users/Nick/Documents/ichWill/.qt/qml_imports/QmlApp_build.cmake
+-importPath
+C:/Users/Nick/Documents/ichWill/QmlApp
+-importPath
+C:/Users/Nick/Documents/ichWill
+-importPath
+C:/Qt/6.8.2/mingw_64/qml
+-qrcFiles
+C:/Users/Nick/Documents/ichWill/.qt/rcc/qmake_QmlApp.qrc
+C:/Users/Nick/Documents/ichWill/.qt/rcc/QmlApp_raw_qml_0.qrc

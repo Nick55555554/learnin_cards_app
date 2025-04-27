@@ -1,0 +1,20 @@
+module QmlApp
+typeinfo QmlApp.qmltypes
+prefer :/QmlApp/
+OneDay 1.0 components/OneDay.qml
+ListOfTermins 1.0 components/ListOfTermins.qml
+TerminCard 1.0 components/TerminCard.qml
+ResultsScreen 1.0 components/ResultsScreen.qml
+NewTermin 1.0 components/NewTermin.qml
+Home 1.0 pages/Home.qml
+NewDay 1.0 pages/NewDay.qml
+Auth 1.0 pages/Auth.qml
+Register 1.0 pages/Register.qml
+AllTermins 1.0 pages/AllTermins.qml
+ListOfAllTermins 1.0 components/ListOfAllTermins.qml
+CustomButton 1.0 components/CustomButton.qml
+OneFolder 1.0 components/OneFolder.qml
+Folder 1.0 pages/Folder.qml
+Day 1.0 pages/Day.qml
+EditDay 1.0 pages/EditDay.qml
+

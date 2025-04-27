@@ -101,11 +101,11 @@ Rectangle {
         cursorShape: Qt.PointingHandCursor
         onClicked: {
             clickAnimation.start()
-            stackView.replace(folderPage, {
+            stackView.push(folderPage, {
                 folderId: folderId,
                 folderName: folderName,
-                folderDays: folderDays
             })
         }
     }
 }
+

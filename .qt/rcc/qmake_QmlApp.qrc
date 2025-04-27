@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/QmlApp">
+    <file alias="qmldir">C:/Users/Nick/Documents/ichWill/QmlApp/qmldir</file>
+  </qresource>
+</RCC>
+

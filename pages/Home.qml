@@ -33,12 +33,12 @@ Item {
     Connections {
             target: databaseManager
 
-            function onDaysChanged() {
+            onDaysChanged: {
                 loadDays()
                 loadFolders()
             }
 
-            function onFoldersChanged() {
+            onFoldersChanged: {
                 loadFolders()
             }
         }
@@ -145,13 +145,13 @@ Item {
                                 profileMenu.close()
                                 globalUser.clearUserData()
                                 stackView.replace("Auth.qml")
+                                databaseManager.clearSession();
                             }
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                         }
 
                         background: Rectangle {
-                            radius: parent.radius
                             color: parent.hovered ? "#ffeeee" : "transparent"
                         }
                     }

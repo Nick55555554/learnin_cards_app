@@ -15,22 +15,17 @@ ApplicationWindow   {
     Material.theme: Material.Light
     Material.accent: Material.Blue
 
-
+    property int userId: globalUser.id
     StackView {
         id: stackView
         anchors.fill: parent
-        initialItem: authPage
-        onCurrentItemChanged: {
-               if (previousItem && previousItem.isFolderPage) {
-                   folderDayModel.clear()
-               }
-           }
+        initialItem: userId !== -1? homePageComponent : authPage
     }
 
     Component {
-        id: authPage
-        Pages.Auth {}
-    }
+            id: authPage
+            Pages.Auth {}
+        }
     Component {
         id: allTermins
         Pages.AllTermins {}

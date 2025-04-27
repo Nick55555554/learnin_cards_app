@@ -1,0 +1,41 @@
+
+set(target "QmlApp")
+set(working_dir "C:/Users/Nick/Documents/ichWill")
+set(src_and_dest_list
+    "C:/Users/Nick/Documents/ichWill/main.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/main.qml"
+    "C:/Users/Nick/Documents/ichWill/components/OneDay.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/components/OneDay.qml"
+    "C:/Users/Nick/Documents/ichWill/components/ListOfTermins.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/components/ListOfTermins.qml"
+    "C:/Users/Nick/Documents/ichWill/components/TerminCard.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/components/TerminCard.qml"
+    "C:/Users/Nick/Documents/ichWill/components/ResultsScreen.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/components/ResultsScreen.qml"
+    "C:/Users/Nick/Documents/ichWill/components/NewTermin.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/components/NewTermin.qml"
+    "C:/Users/Nick/Documents/ichWill/pages/Home.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/pages/Home.qml"
+    "C:/Users/Nick/Documents/ichWill/pages/NewDay.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/pages/NewDay.qml"
+    "C:/Users/Nick/Documents/ichWill/pages/Auth.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/pages/Auth.qml"
+    "C:/Users/Nick/Documents/ichWill/pages/Register.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/pages/Register.qml"
+    "C:/Users/Nick/Documents/ichWill/pages/AllTermins.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/pages/AllTermins.qml"
+    "C:/Users/Nick/Documents/ichWill/components/ListOfAllTermins.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/components/ListOfAllTermins.qml"
+    "C:/Users/Nick/Documents/ichWill/components/CustomButton.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/components/CustomButton.qml"
+    "C:/Users/Nick/Documents/ichWill/components/OneFolder.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/components/OneFolder.qml"
+    "C:/Users/Nick/Documents/ichWill/pages/Folder.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/pages/Folder.qml"
+    "C:/Users/Nick/Documents/ichWill/pages/Day.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/pages/Day.qml"
+    "C:/Users/Nick/Documents/ichWill/pages/EditDay.qml"
+    "C:/Users/Nick/Documents/ichWill/QmlApp/pages/EditDay.qml"
+
+)
+set(timestamp_file "C:/Users/Nick/Documents/ichWill/.qt/QmlApp_qml.txt")

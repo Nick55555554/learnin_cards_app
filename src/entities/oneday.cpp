@@ -1,4 +1,4 @@
-#include "entities/oneDay.h"
+#include "entities/oneday.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
@@ -53,7 +53,7 @@ void OneDay::setUserId(int userId) {
 void OneDay::setFolderId(int folderId) {
     if (m_folderId != folderId) {
         m_folderId = folderId;
-        emit folderIdChanged(); // Не забудьте добавить сигнал, если он нужен
+        emit folderIdChanged();
     }
 }
 

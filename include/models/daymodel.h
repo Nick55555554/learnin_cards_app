@@ -4,7 +4,7 @@
 #include <QAbstractListModel>
 #include <QList>
 #include "entities/myday.h"
-#include "managers/databaseManager.h"
+#include "managers/databasemanager.h"
 
 class DayModel : public QAbstractListModel
 {

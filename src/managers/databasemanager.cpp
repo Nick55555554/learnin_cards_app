@@ -13,6 +13,9 @@
 #include <QStringList>
 #include <QVariantMap>
 #include <QVariantList>
+#include <QCryptographicHash>
+#include <QSettings>
+#include <QRandomGenerator>
 
 
 DatabaseManager::DatabaseManager(QObject *parent)
@@ -35,9 +38,20 @@ DatabaseManager::~DatabaseManager() {
 }
 
 bool DatabaseManager::initializeDatabaseStructure(QSqlDatabase& db) {
+    if (!db.isOpen()) {
+        qCritical() << "Database is not open!";
+        return false;
+    }
+
     QSqlQuery query(db);
-    return query.exec("PRAGMA foreign_keys = ON")
-           && createTables(db);
+    bool success = true;
+
+    if (!query.exec("PRAGMA foreign_keys = ON")) {
+        qCritical() << "Foreign keys error:" << query.lastError();
+        success = false;
+    }
+
+    return success && createTables(db);
 }
 
 void DatabaseManager::cleanupQueries() {
@@ -78,11 +92,12 @@ QSqlQuery DatabaseManager::createQuery() {
 bool DatabaseManager::openDatabase(const QString &dbName) {
     QMutexLocker locker(&mutex);
 
-    if (QSqlDatabase::contains(m_connectionName)) {
-        auto db = QSqlDatabase::database(m_connectionName, false);
-        if (db.isOpen()) return true;
+    // Создаём папку для БД, если её нет
+    QDir().mkpath(QFileInfo(dbName).absolutePath());
 
-        // Важно: закрыть перед повторным открытием
+    if (QSqlDatabase::contains(m_connectionName)) {
+        auto db = QSqlDatabase::database(m_connectionName);
+        if (db.isOpen()) return true;
         db.close();
         QSqlDatabase::removeDatabase(m_connectionName);
     }
@@ -95,8 +110,15 @@ bool DatabaseManager::openDatabase(const QString &dbName) {
         return false;
     }
 
+    // Переносим инициализацию структуры сюда
+    if (!initializeDatabaseStructure(db)) {
+        qCritical() << "Failed to initialize database structure";
+        return false;
+    }
+
     return true;
 }
+
 bool DatabaseManager::createTables(QSqlDatabase& db) {
     QSqlQuery query(db);
     bool success = true;
@@ -105,40 +127,49 @@ bool DatabaseManager::createTables(QSqlDatabase& db) {
         "CREATE TABLE IF NOT EXISTS Users ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
         "name TEXT NOT NULL,"
-        "email TEXT UNIQUE NOT NULL)"
+        "username TEXT NOT NULL,"
+        "salt TEXT NOT NULL,"
+        "password TEXT UNIQUE NOT NULL)"
         );
     if (!success) qCritical() << "Users table error:" << query.lastError().text();
 
-    // Таблица Days
-    success &= query.exec(
-        "CREATE TABLE IF NOT EXISTS Days ("
-        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        "title TEXT NOT NULL,"
-        "user_id INTEGER,"
-        "Folder_id INTEGER"
-        "FOREIGN KEY(user_id) REFERENCES Users(id))"
-        );
-    if (!success) qCritical() << "Days table error:" << query.lastError().text();
+    try { // Таблица Days
+        success &= query.exec(
+            "CREATE TABLE IF NOT EXISTS Days ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "dayName TEXT NOT NULL,"
+            "user_id INTEGER,"
+            "Folder_id INTEGER,"
+            "FOREIGN KEY(user_id) REFERENCES Users(id))"
+            );
+        if (!success) qCritical() << "Days table error:" << query.lastError().text();
 
-    // Таблица Termins
-    success &= query.exec(
-        "CREATE TABLE IF NOT EXISTS Termins ("
-        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        "description TEXT NOT NULL,"
-        "day_id INTEGER,"
-        "FOREIGN KEY(day_id) REFERENCES Days(id) ON DELETE CASCADE)"
-        );
-    if (!success) qCritical() << "Termins table error:" << query.lastError().text();
+        // Таблица Termins
+        success &= query.exec(
+            "CREATE TABLE IF NOT EXISTS Termins ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "def TEXT NOT NULL,"
+            "translate TEXT NOT NULL,"
+            "image TEXT,"
+            "memoryLevel INTEGER DEFAULT 0,"
+            "day_id INTEGER,"
+            "FOREIGN KEY(day_id) REFERENCES Days(id) ON DELETE CASCADE)"
+            );
+        if (!success) qCritical() << "Termins table error:" << query.lastError().text();
 
-    success &= query.exec(
-        "CREATE TABLE IF NOT EXISTS Folders ("
-        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        "name TEXT NOT NULL,"
-        "user_id INTEGER,"
-        "day_ids TEXT,"
-        "FOREIGN KEY(user_id) REFERENCES Users(id))"
-        );
-    if (!success) qCritical() << "Termins table error:" << query.lastError().text();
+        success &= query.exec(
+            "CREATE TABLE IF NOT EXISTS Folders ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "name TEXT NOT NULL,"
+            "user_id INTEGER,"
+            "day_ids TEXT,"
+            "FOREIGN KEY(user_id) REFERENCES Users(id))"
+            );
+        if (!success) qCritical() << "Termins table error:" << query.lastError().text();
+    } catch (...) {
+        db.rollback();
+        success = false;
+    }
 
     return success;
 }
@@ -445,68 +476,6 @@ QList<QVariantMap> DatabaseManager::getFoldersById(int userId) {
     return folders;
 }
 
-bool DatabaseManager::registerUser(const QString &name, const QString &username, const QString &password) {
-
-        if (!openDatabase()) return false;
-
-        {
-            QMutexLocker locker(&mutex);
-            QSqlDatabase db = QSqlDatabase::database(m_connectionName);
-            QSqlQuery query(db);
-            query.prepare("INSERT INTO Users (name, username, password) VALUES (?, ?, ?)");
-            query.addBindValue(name);
-            query.addBindValue(username);
-            query.addBindValue(password);
-
-            if (query.exec()) {
-                return true;
-            }
-            qWarning() << "Error registering user:" << query.lastError().text();
-        }
-
-    return false;
-}
-
-
-
-
-QVariantMap DatabaseManager::authenticate(const QString &username, const QString &password) {
-    QVariantMap result;
-
-    if (!openDatabase()) {
-        result["success"] = false;
-        result["error"] = "Database connection failed";
-        return result;
-    }
-
-    {
-        QMutexLocker locker(&mutex);
-        QSqlDatabase db = QSqlDatabase::database(m_connectionName);
-        QSqlQuery query(db);
-
-        query.prepare("SELECT id, name FROM Users WHERE username = ? AND password = ?");
-        query.addBindValue(username);
-        query.addBindValue(password);
-
-        if (!query.exec()) {
-            result["success"] = false;
-            result["error"] = "Database error: " + query.lastError().text();
-            return result;
-        }
-
-        if (query.next()) {
-            result["success"] = true;
-            result["id"] = query.value(0).toInt();
-            result["name"] = query.value(1).toString();
-        } else {
-            result["success"] = false;
-            result["error"] = "Invalid credentials";
-        }
-    }
-    return result;
-}
-
-
 bool DatabaseManager::updateFolderAndDay(int folderId, int dayId) {
     if (!openDatabase()) return false;
 
@@ -691,7 +660,9 @@ bool DatabaseManager::updateDayName(int dayId, const QString &dayName ) {
     }
     return true;
 }
+
 bool DatabaseManager::deleteFolder(int folderId) {
+
     if (!openDatabase()) return false;
 
     QMutexLocker locker(&mutex);
@@ -720,26 +691,35 @@ bool DatabaseManager::deleteFolder(int folderId) {
             dayIds = query.value(0).toString();
         }
 
-        // 2. Обновляем связанные дни
+
         if (!dayIds.isEmpty()) {
             QSqlQuery query(db);
             QStringList ids = dayIds.split(',', Qt::SkipEmptyParts);
-
-            // Формируем плейсхолдеры для IN-условия
-            QStringList placeholders;
-            for (int i = 0; i < ids.size(); ++i) {
-                placeholders << "?";
-            }
-
-            query.prepare(QString("UPDATE Days SET folder_id = NULL WHERE id IN (%1)")
-                              .arg(placeholders.join(',')));
+            QVector<int> validDayIds;
+            std::transform(ids.cbegin(), ids.cend(), std::back_inserter(validDayIds),
+                           [](const QString& s) { return s.toInt(); });
 
             for (const QString& id : ids) {
                 bool ok;
                 int dayId = id.toInt(&ok);
                 if (ok) {
-                    query.addBindValue(dayId);
+                    validDayIds << dayId;
+                } else {
+                    qWarning() << "Invalid day_id:" << id;
                 }
+            }
+
+            // Формируем плейсхолдеры для IN-условия
+            QStringList placeholders;
+            for (int i = 0; i < validDayIds.size(); ++i) {
+                placeholders << "?";
+            }
+
+            query.prepare(QString("UPDATE Days SET Folder_id = NULL WHERE id IN (%1)")
+                              .arg(placeholders.join(',')));
+
+            for (int dayId : validDayIds) {
+                query.addBindValue(dayId);
             }
 
             if (!query.exec()) {
@@ -752,7 +732,7 @@ bool DatabaseManager::deleteFolder(int folderId) {
         // 3. Удаляем саму папку
         {
             QSqlQuery query(db);
-            query.prepare("DELETE FROM Folders WHERE id = ?");
+            query.prepare("DELETE  FROM Folders WHERE id = ?");
             query.addBindValue(folderId);
 
             if (!query.exec()) {
@@ -767,8 +747,6 @@ bool DatabaseManager::deleteFolder(int folderId) {
             qWarning() << "Failed to commit transaction:" << db.lastError().text();
             return false;
         }
-        emit foldersChanged();
-        emit daysChanged();
         return true;
     }
     catch (...) {
@@ -776,6 +754,7 @@ bool DatabaseManager::deleteFolder(int folderId) {
         throw;
     }
 }
+
 QVariantList DatabaseManager::getTerminsByFolderId(int fodlerId) {
     QVariantList termins;
 
@@ -791,7 +770,7 @@ QVariantList DatabaseManager::getTerminsByFolderId(int fodlerId) {
             "SELECT Termins.id, Termins.def, Termins.translate, Termins.memoryLevel, Termins.image "
             "FROM Termins "
             "INNER JOIN Days ON Termins.day_Id = Days.id "
-            "WHERE Days.fodler_id = ?"
+            "WHERE Days.folder_id = ?"
             );
         query.addBindValue(fodlerId);
 
@@ -811,6 +790,7 @@ QVariantList DatabaseManager::getTerminsByFolderId(int fodlerId) {
     }
     return termins;
 }
+
 bool DatabaseManager::deleteDay(int dayId) {
     if (!openDatabase()) return false;
 
@@ -828,7 +808,6 @@ bool DatabaseManager::deleteDay(int dayId) {
             return false;
         }
 
-        // 2. Удаление дня
         QSqlQuery deleteDayQuery(db);
         deleteDayQuery.prepare("DELETE FROM Days WHERE id = ?");
         deleteDayQuery.addBindValue(dayId);
@@ -873,4 +852,158 @@ bool DatabaseManager::deleteDay(int dayId) {
     emit daysChanged();
     emit foldersChanged();
     return true;
+}
+bool DatabaseManager::registerUser(const QString &name, const QString &username, const QString &password) {
+    if (!openDatabase()) return false;
+
+    QString salt = generateSalt();
+    QString hashedPassword = hashPassword(password, salt);
+
+    QMutexLocker locker(&mutex);
+    QSqlQuery query(QSqlDatabase::database(m_connectionName));
+    query.prepare(
+        "INSERT INTO Users (name, username, password, salt) "
+        "VALUES (?, ?, ?, ?)"
+        );
+    query.addBindValue(name);
+    query.addBindValue(username);
+    query.addBindValue(hashedPassword);
+    query.addBindValue(salt);
+
+    if (query.exec()) {
+        return true;
+    }
+    qWarning() << "Error registering user:" << query.lastError().text();
+    return false;
+}
+
+QVariantMap DatabaseManager::authenticate(const QString &username, const QString &password) {
+    QVariantMap result;
+
+    if (!openDatabase()) {
+        result["success"] = false;
+        result["error"] = "Database connection failed";
+        return result;
+    }
+
+    {
+        QMutexLocker locker(&mutex);
+        QSqlQuery query(QSqlDatabase::database(m_connectionName));
+
+        query.prepare("SELECT id, name, password, salt FROM Users WHERE username = ?");
+        query.addBindValue(username);
+
+        if (!query.exec()) {
+            result["success"] = false;
+            result["error"] = "Ошибка в логине или пароле";
+            return result;
+        }
+
+        if (query.next()) {
+            int userId = query.value(0).toInt();
+            QString name = query.value(1).toString();
+            QString storedHash = query.value(2).toString();
+            QString salt = query.value(3).toString();
+
+            QString inputHash = hashPassword(password, salt);
+
+            if (inputHash == storedHash) {
+                QString token = generateUserToken(userId, username);
+                saveSession(userId, token);
+
+            result["success"] = true;
+            result["id"] = userId;
+            result["name"] = name;
+            result["token"] = token;
+            } else {
+                result["success"] = false;
+                result["error"] = "Invalid credentials";
+            }
+        } else {
+            result["success"] = false;
+            result["error"] = "User not found";
+        }
+
+        return result;
+    }
+}
+
+QString DatabaseManager::generateUserToken(int userId, const QString& username) {
+    QByteArray secret = QByteArray(32, '\0');
+    QString data = QString("%1:%2:%3:%4")
+                       .arg(userId)
+                       .arg(username)
+                       .arg(QDateTime::currentDateTime().toString("yyyyMMdd"))
+                       .arg(secret);
+
+    return QCryptographicHash::hash(data.toUtf8(), QCryptographicHash::Sha256).toHex();
+}
+
+void DatabaseManager::saveSession(int userId, const QString& token) {
+    QSettings settings("NickolayGrachev", "Memorizzali");
+    settings.setValue("session/userId", userId);
+    settings.setValue("session/token", token);
+    settings.setValue("session/expires", QDateTime::currentDateTime().addDays(7));
+    settings.sync();
+}
+
+bool DatabaseManager::tryAutoLogin(QVariantMap& userData) {
+    QSettings settings("NickolayGrachev", "Memorizzali");
+
+    int userId = settings.value("session/userId").toInt();
+    QString savedToken = settings.value("session/token").toString();
+    QDateTime expires = settings.value("session/expires").toDateTime();
+
+    if(userId == 0 || savedToken.isEmpty() || QDateTime::currentDateTime() > expires) {
+        return false;
+    }
+
+    QMutexLocker locker(&mutex);
+    QSqlQuery query(QSqlDatabase::database(m_connectionName));
+    query.prepare("SELECT id, name, username FROM Users WHERE id = ?");
+    query.addBindValue(userId);
+
+    if(!query.exec() || !query.next()) {
+        return false;
+    }
+
+    QString username = query.value(2).toString();
+    QString generatedToken = generateUserToken(userId, username);
+
+    if(generatedToken == savedToken) {
+        userData["id"] = userId;
+        userData["name"] = query.value(1).toString();
+        userData["username"] = username;
+        return true;
+    }
+
+    return false;
+}
+
+void DatabaseManager::clearSession() {
+    QSettings settings("NickolayGrachev", "Memorizzali");
+    settings.remove("session/userId");
+    settings.remove("session/token");
+    settings.remove("session/expires");
+}
+
+QString DatabaseManager::generateSalt() {
+    const int saltLength = 32;
+    QByteArray salt;
+    salt.reserve(saltLength);
+
+    for(int i = 0; i < saltLength; ++i) {
+        salt.append(QRandomGenerator::global()->generate() % 256);
+    }
+    return salt.toHex();
+}
+
+QString DatabaseManager::hashPassword(const QString& password, const QString& salt) {
+    QByteArray combined = (password + salt).toUtf8();
+
+    // Хэшируем с использованием SHA-256
+    QByteArray hash = QCryptographicHash::hash(combined, QCryptographicHash::Sha256);
+
+    // Возвращаем хэш в шестнадцатеричном формате
+    return QString::fromUtf8(hash.toHex());
 }
